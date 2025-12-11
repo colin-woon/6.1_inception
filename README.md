@@ -4,6 +4,9 @@ Setup process in order
 - Docker Engine <https://docs.docker.com/engine/install/ubuntu/>
 - Docker user group
 - File Structure and gitignores
-- MariaDB (doesnt depend on anything)
-- Wordpress (depends on MariaDB)
-- NGINX (needs wordpress entrypoint)
+
+- Penultimate Stable Version at 10/12/2025
+	- Debian - Bookworm (v12), latest is Trixie (13)
+- MariaDB (doesnt depend on anything) (Debian)
+- Wordpress (depends on MariaDB) (Debian)
+- NGINX (needs wordpress entrypoint) (Alpine)
