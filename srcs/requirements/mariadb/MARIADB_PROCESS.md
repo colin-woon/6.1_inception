@@ -9,6 +9,9 @@ docker build -t <IMAGE_NAME> <directory_DOCKERFILE>
 docker run -d --name <CONTAINER_NAME> -p <PORT> <FROM_IMAGE_NAME>
 docker logs <CONTAINER_NAME>
 docker rmi <IMAGE_NAME> (remove image)
+docker exec -it -u <USER> <CONTAINER_NAME> <COMMAND>
+docker stop <CONTAINER_NAME>
+docker rm <CONTAINER_NAME>
 ```
 
 <details>
@@ -229,6 +232,213 @@ mariadb-test2:latest
 `SHOW DATABASES;` in MariaDB
 
 </details>
+
+<!-- <details> -->
+<!-- <summary><h1> CHECKPOINT 1 - MariaDB Init</h1> </summary> -->
+## 1. Hardcode networking config and db init into Dockerfile
+
+```dockerfile
+# ARG PENULTIMATE_DEBIAN_STABLE_VERSION
+# FROM debian:$PENULTIMATE_DEBIAN_STABLE_VERSION
+FROM debian:bookworm-slim
+
+RUN apt-get update && apt-get install -y --no-install-recommends mariadb-server && rm -rf /var/lib/apt/lists/*
+
+RUN mkdir -p /run/mysqld \
+    && chown -R mysql:mysql /run/mysqld
+
+# 3. [CONCEPT 1] HARDCODE CONFIG CHANGE
+# Modify the existing config file to listen on 0.0.0.0
+RUN sed -i "s/127.0.0.1/0.0.0.0/g" /etc/mysql/mariadb.conf.d/50-server.cnf
+
+# 4. [CONCEPT 2] HARDCODE INIT SCRIPT
+# Write the script file line-by-line
+RUN echo '#!/bin/bash' > /usr/local/bin/init_db.sh && \
+    # Start the service temporarily
+    echo 'service mariadb start' >> /usr/local/bin/init_db.sh && \
+    echo 'sleep 5' >> /usr/local/bin/init_db.sh && \
+    # Run SQL Commands
+    echo 'mariadb -e "CREATE DATABASE IF NOT EXISTS test_db;"' >> /usr/local/bin/init_db.sh && \
+    echo 'mariadb -e "CREATE USER IF NOT EXISTS giga_user@\"%\" IDENTIFIED BY \"giga_pass\";"' >> /usr/local/bin/init_db.sh && \
+    echo 'mariadb -e "GRANT ALL PRIVILEGES ON test_db.* TO giga_user@\"%\";"' >> /usr/local/bin/init_db.sh && \
+    echo 'mariadb -e "FLUSH PRIVILEGES;"' >> /usr/local/bin/init_db.sh && \
+    # Shutdown temp service
+    echo 'mysqladmin -u root shutdown' >> /usr/local/bin/init_db.sh && \
+    # Start the real service (PID 1)
+    echo 'exec mariadbd' >> /usr/local/bin/init_db.sh && \
+    # Make executable
+    chmod +x /usr/local/bin/init_db.sh
+
+USER mysql
+
+EXPOSE 3306
+
+# Run the script we just created
+ENTRYPOINT ["/usr/local/bin/init_db.sh"]
+```
+
+### EXPLANATION
+```dockerfile
+ENTRYPOINT ["/usr/bin/my-app"]
+CMD ["--help"]
+```
+
+- Running normally: `docker run my-image` executes `/usr/bin/my-app --help`
+- Running with custom args: `docker run my-image start` executes `/usr/bin/my-app start`
+
+- use `ENTRYPOINT` to lock down what the container is (e.g., a web server, a utility script)
+- use `CMD` to provide sensible, easily-overridden defaults for how it runs
+
+## 2. Refactor into config files and script
+
+`COPY <source> <destination>`
+- `<source>`: file in local host machine. This path must be relative to the directory containing the Dockerfile (the build context).
+- `<destination>`: The absolute path inside the image filesystem where you want the file(s) to land.
+
+### Dockerfile
+```dockerfile
+FROM debian:bookworm-slim
+
+RUN apt-get update && apt-get install -y --no-install-recommends mariadb-server && rm -rf /var/lib/apt/lists/*
+
+RUN mkdir -p /run/mysqld \
+    && chown -R mysql:mysql /run/mysqld
+
+# 3. COPY Config (Replaces 'sed')
+COPY conf/50-server.cnf /etc/mysql/mariadb.conf.d/50-server.cnf
+
+# 4. COPY Script (Replaces 'echo')
+COPY tools/init_db.sh /usr/local/bin/init_db.sh
+RUN chmod +x /usr/local/bin/init_db.sh
+
+EXPOSE 3306
+
+# Run the script we just created
+ENTRYPOINT ["/usr/local/bin/init_db.sh"]
+```
+
+### Config ("srcs/requirements/mariadb/conf/50-server.cnf")
+```conf
+[mysqld]
+user = mysql
+pid-file = /run/mysqld/mysqld.pid
+socket = /run/mysqld/mysqld.sock
+port = 3306
+basedir = /usr
+datadir = /var/lib/mysql
+tmpdir = /tmp
+lc-messages-dir = /usr/share/mysql
+
+# The Clean Fix: Listen to everyone
+bind-address = 0.0.0.0
+
+query_cache_size = 16M
+log_error = /var/log/mysql/error.log
+```
+
+### Init Script ("srcs/requirements/mariadb/tools/init_db.sh")
+```sh
+#!/bin/bash
+
+# 1. Start the service (The "Hack" way)
+service mariadb start
+sleep 5
+
+# 2. Check if the database variables are actually set (Safety Check)
+if [ -z "$MYSQL_DATABASE" ]; then
+    echo "Error: MYSQL_DATABASE is not set!"
+    exit 1
+fi
+
+# 3. The SQL Injection (Now using variables!)
+mariadb -e "CREATE DATABASE IF NOT EXISTS \`${MYSQL_DATABASE}\`;"
+mariadb -e "CREATE USER IF NOT EXISTS \`${MYSQL_USER}\`@'%' IDENTIFIED BY '${MYSQL_PASSWORD}';"
+mariadb -e "GRANT ALL PRIVILEGES ON \`${MYSQL_DATABASE}\`.* TO \`${MYSQL_USER}\`@'%';"
+mariadb -e "FLUSH PRIVILEGES;"
+
+# 4. Shutdown and Restart
+mysqladmin -u root shutdown
+exec mariadbd
+```
+
+## 3. Make docker compose for mariadb only
+
+### Prepare .env example
+```yaml
+# Domain
+DOMAIN_NAME=login.42.fr
+
+# MySQL Setup
+MYSQL_DATABASE=db
+MYSQL_USER=user
+MYSQL_PASSWORD=password
+MYSQL_ROOT_PASSWORD=password
+
+# We will use this later for WordPress
+WP_ADMIN_USER=user
+WP_ADMIN_PASS=password
+```
+
+### docker-compose.yml
+```yml
+version: "3.8"
+
+services:
+  mariadb:
+    # 1. Build from your directory
+    build:
+      context: ./requirements/mariadb
+      dockerfile: Dockerfile
+      # If you used ARG in Dockerfile, define it here:
+      # args:
+      #   - PENULTIMATE_DEBIAN_STABLE_VERSION=bullseye
+
+    # 2. Container Name (easier to type than the random ID)
+    container_name: mariadb
+
+    # 3. Inject Environment Variables from .env automatically
+    environment:
+      - MYSQL_DATABASE=${MYSQL_DATABASE}
+      - MYSQL_USER=${MYSQL_USER}
+      - MYSQL_PASSWORD=${MYSQL_PASSWORD}
+      - MYSQL_ROOT_PASSWORD=${MYSQL_ROOT_PASSWORD}
+
+    # 4. Persistence (So you don't lose data on restart)
+    volumes:
+      - mariadb_data:/var/lib/mysql
+
+    # 5. Networking (Private network for Inception)
+    networks:
+      - inception
+
+    # 6. Stability
+    restart: always
+
+# Define the shared resources
+volumes:
+  mariadb_data:
+    driver: local
+    # opts:
+    #   type: none
+    #   o: bind
+    #   device: /home/login/data/mariadb # ⚠️ Update 'login' to your user!
+
+networks:
+  inception:
+    driver: bridge
+```
+
+- Launch: `docker compose -f srcs/docker-compose.yml up --build -d`
+- Verify: `docker compose -f srcs/docker-compose.yml ps`
+- Connect: `docker exec -it mariadb mariadb -u <USERNAME> -<PASSWORD>`
+
+- `-f srcs/docker-compose.yml` finds the configuration file *(optional: docker compose up alone will do, will default to the docker-compose.yml file)*
+- `up` starts the services
+- `--build` force rebuild
+- `-d` detached
+
+<!-- </details> -->
+
 <!-- ### ISSUE:
 ### REASON:
 ### FIX: -->
