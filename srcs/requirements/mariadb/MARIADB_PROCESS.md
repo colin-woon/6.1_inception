@@ -233,8 +233,8 @@ mariadb-test2:latest
 
 </details>
 
-<!-- <details> -->
-<!-- <summary><h1> CHECKPOINT 1 - MariaDB Init</h1> </summary> -->
+<details>
+<summary><h1> CHECKPOINT 1 - MariaDB Init</h1> </summary>
 ## 1. Hardcode networking config and db init into Dockerfile
 
 ```dockerfile
@@ -497,7 +497,45 @@ echo "Replacing MariaDB as PID 1"
 exec mariadbd --user=${MYSQL_USER} --bind-address=0.0.0.0
 ```
 
-<!-- </details> -->
+## 5. Created Makefile to initialize volume (considered bind mount because its a custom directory, not managed by docker engine)
+
+```Makefile
+NAME				=	inception
+DOCKER_COMPOSE_FILE	=	./srcs/docker-compose.yml
+DATA_PATH			=	/home/cwoon/data
+
+GREEN		= \033[0;32m
+RESET		= \033[0m
+
+# .SILENT:
+
+all : up
+
+setup:
+	mkdir -p $(DATA_PATH)/mariadb
+	echo "$(GREEN) Data volumes created at $(DATA_PATH)$(RESET)"
+
+up : setup
+	echo "$(GREEN)Building and starting Inception...$(RESET)"
+	docker compose -f $(DOCKER_COMPOSE_FILE) up --build -d
+
+down:
+	echo "$(GREEN)Stopping inception...$(RESET)"
+	docker compose -f $(DOCKER_COMPOSE_FILE) down
+
+# Clean everything (Containers, Networks, Images, Volumes)
+clean: down
+	docker system prune -af
+
+fclean: clean
+	sudo rm -rf $(DATA_PATH)
+	docker volume prune -f
+
+re: fclean all
+
+.PHONY: all setup up down clean fclean re
+```
+</details>
 
 <!-- ### ISSUE:
 ### REASON:

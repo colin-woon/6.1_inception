@@ -12,4 +12,4 @@ lc-messages-dir = /usr/share/mysql
 bind-address = 0.0.0.0
 
 query_cache_size = 16M
-log_error = /var/log/mysql/error.log
+; log_error = /var/log/mysql/error.log

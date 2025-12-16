@@ -6,3 +6,6 @@
 -
 
 ### For Volume custom directories that require root access, thats where the Makefile is useful
+
+
+### Database credentials should be stored in secrets folder because `docker inspect <container>` will reveal all .env stuff
