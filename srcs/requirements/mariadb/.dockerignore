@@ -1,0 +1,12 @@
+# Ignore documentation (not needed for the database to run)
+*.md
+MARIADB_PROCESS.md
+NOTES.md
+
+# Ignore Git metadata (if this folder is part of a repo)
+.git
+.gitignore
+
+# Ignore any potential local logs or temp files
+*.log
+.DS_Store
