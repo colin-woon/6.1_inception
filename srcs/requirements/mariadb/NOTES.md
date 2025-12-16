@@ -1,0 +1,2 @@
+- `docker top <container>` shows host machine PID and the container process PID respective to the host, so not a good way to check if the container is PID 1 in its own environment
+- `docker exec -it <container> ps aux`, this will show the PID

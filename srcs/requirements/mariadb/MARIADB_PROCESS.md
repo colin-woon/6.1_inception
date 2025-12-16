@@ -437,6 +437,66 @@ networks:
 - `--build` force rebuild
 - `-d` detached
 
+## 4. Ensure MariaDB is PID 1 in container
+
+### ISSUE:
+- The `init_db.sh` runs mariadb as the background process, then `exec mariadb`, it replaces the bash process as PID 1, but mariadb was already running in the background, so `docker stop` signals go to the foreground mariadb but forgot the background one.
+
+### REASON:
+- `sleep 5` is a hack currently, but if mariadb takes 5.1 seconds to boot, creating a race condition, everything will fail.
+
+### FIX:
+- **Socket Polling** - looping until a connection is heard
+- **Idempotency** - applying it multiple times has the same effect as applying it just once, in this context:
+	- First Run: container is fresh, create databases and users
+	- Restart: DB exists, skip initialization to avoid overwriting data
+
+### UPDATED init_db.sh
+```bash
+#!/bin/bash
+set -e # Exit instantly if any command failed
+
+# 1. Idempotency check
+if [ -d "/var/lib/mysql/mysql" ]; then
+	echo "Database already initialized. Starting server..."
+	exec mariadbd --user=${MYSQL_USER} --bind-address=0.0.0.0
+fi
+
+echo "Initializing Database"
+
+# 2. Start temporary server
+# & puts mariadb in background, $! gets the most recently executed process ID
+mariadbd --user={MYSQL_USER} --datadir=/var/lib/mysql --skip-networking & PID="$!"
+
+# 3. Polling
+# Wait for DB to connect
+echo "Waiting for MariaDB to be ready..."
+until mysqladmin ping -h localhost --silent; do
+	sleep 1
+done
+
+# 4. Check if the database variables are actually set (Safety Check)
+if [ -z "$MYSQL_DATABASE" ]; then
+    echo "Error: MYSQL_DATABASE is not set!"
+    exit 1
+fi
+
+# 5. The SQL Injection (Now using variables!)
+mariadb -e "CREATE DATABASE IF NOT EXISTS \`${MYSQL_DATABASE}\`;"
+mariadb -e "CREATE USER IF NOT EXISTS \`${MYSQL_USER}\`@'%' IDENTIFIED BY '${MYSQL_PASSWORD}';"
+mariadb -e "GRANT ALL PRIVILEGES ON \`${MYSQL_DATABASE}\`.* TO \`${MYSQL_USER}\`@'%';"
+mariadb -e "FLUSH PRIVILEGES;"
+
+# 6. CLeanly shutdown temporary server
+echo "Shutting down temporary server"
+mysqladmin -u root shudown
+wait "$PID" # script will not execute next if previous PID was not shutdown properly
+
+# 7. Start MariaDB as PID 1
+echo "Replacing MariaDB as PID 1"
+exec mariadbd --user=${MYSQL_USER} --bind-address=0.0.0.0
+```
+
 <!-- </details> -->
 
 <!-- ### ISSUE:

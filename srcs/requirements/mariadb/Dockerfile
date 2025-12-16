@@ -1,6 +1,6 @@
-ARG PENULTIMATE_DEBIAN_STABLE_VERSION
+# Default value since ARG is being used in FROM, docker-compose.yml will overwrite this if arg is passed
+ARG PENULTIMATE_DEBIAN_STABLE_VERSION="bookworm-slim"
 FROM debian:$PENULTIMATE_DEBIAN_STABLE_VERSION
-# FROM debian:bookworm-slim
 
 RUN apt-get update && apt-get install -y --no-install-recommends mariadb-server && rm -rf /var/lib/apt/lists/*
 
