@@ -1,34 +1,22 @@
 services:
   mariadb:
-    # 1. Build from your directory
     build:
       context: ./requirements/mariadb
       dockerfile: Dockerfile
       args:
         - PENULTIMATE_DEBIAN_STABLE_VERSION=bookworm-slim
-
-    # 2. Container Name (easier to type than the random ID)
     container_name: mariadb-test
-
-    # 3. Inject Environment Variables from .env automatically
     environment:
       - MYSQL_DATABASE=${MYSQL_DATABASE}
       - MYSQL_USER=${MYSQL_USER}
       - MYSQL_PASSWORD=${MYSQL_PASSWORD}
       - MYSQL_ROOT_PASSWORD=${MYSQL_ROOT_PASSWORD}
-
-    # 4. Persistence (So you don't lose data on restart)
     volumes:
-      - mariadb_data:/var/lib/mysql
-
-    # 5. Networking (Private network for Inception)
+      - mariadb_data:/var/lib/mysql:rw
     networks:
       - inception
-
-    # 6. Stability
     restart: always
 
-# Define the shared resources
 volumes:
   mariadb_data:
     driver: local
@@ -40,3 +28,4 @@ volumes:
 networks:
   inception:
     driver: bridge
+    name: inception
