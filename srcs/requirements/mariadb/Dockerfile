@@ -2,7 +2,7 @@
 ARG PENULTIMATE_DEBIAN_STABLE_VERSION="bookworm-slim"
 FROM debian:$PENULTIMATE_DEBIAN_STABLE_VERSION
 
-RUN apt-get update && apt-get install -y --no-install-recommends mariadb-server && rm -rf /var/lib/apt/lists/*
+RUN DEBIAN_FRONTEND=noninteractive apt-get update && apt-get install -y --no-install-recommends mariadb-server && rm -rf /var/lib/apt/lists/*
 
 # MariaDB has a user called "mysql", and to communicate with other processes in the container, it uses a Unix Socket File (.sock), this is typically stored in /run/mysqld/mysqld.sock, normal OS installation script will actually create this. But since ours is slim, it doesnt create it automatically.
 # Any directories created by Dockerfile is owned by "root", and mariaDB process is under "mysql" user, so need to change ownership of the directory so mariaDB can access it
