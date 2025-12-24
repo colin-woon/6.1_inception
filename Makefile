@@ -11,6 +11,7 @@ all : up
 
 setup:
 	mkdir -p $(DATA_PATH)/mariadb
+	mkdir -p $(DATA_PATH)/wordpress
 	echo "$(GREEN) Data volumes created at $(DATA_PATH)$(RESET)"
 
 up : setup
@@ -25,9 +26,10 @@ down:
 clean: down
 	docker system prune -af
 
-fclean: clean
+fclean:
+	docker compose -f $(DOCKER_COMPOSE_FILE) down -v
+	docker system prune -af
 	sudo rm -rf $(DATA_PATH)
-	docker volume prune -f
 
 re: fclean all
 
