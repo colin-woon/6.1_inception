@@ -7,6 +7,7 @@ Setup process in order
 
 - Penultimate Stable Version at 10/12/2025
 	- Debian - Bookworm (v12), latest is Trixie (13)
+	- Alpine - (3.22), latest is (3.23)
 - MariaDB (doesnt depend on anything) (Debian)
 - Wordpress (depends on MariaDB) (Debian)
 - NGINX (needs wordpress entrypoint) (Alpine)
@@ -30,3 +31,5 @@ debian:bookworm-slim    e899040a73d3        116MB
 srcs-mariadb:latest     6f3ff0aefae9        563MB
 srcs-wordpress:latest   1b42e9fb8cc6        428MB
 ```
+- okay so im not going to refactor all images to use alpine now cause its a preoptimization trap, i need to focus more on how to orchestrate the services instead of worrying about the size first, it would be a later implementation
+- so will stick to the original plan of using alpine only for nginx
