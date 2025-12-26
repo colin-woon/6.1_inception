@@ -18,3 +18,15 @@ Setup process in order
 
 - `dpkg -L <package>` -- shows all files installed along the package to see what exists, it'll give a list
 - `docker exec -it <container> bash` launch bash as seperate process in container
+
+- Debian Slim images are still huge in the end, even with --no-install-recommends
+- Refactoring to use alpine
+```bash
+cwoon@cwoon:~$ docker images
+                              i Info →   U  In Use
+IMAGE                   ID             DISK USAGE
+alpine/curl:latest      85cf2e805a7c         21MB
+debian:bookworm-slim    e899040a73d3        116MB
+srcs-mariadb:latest     6f3ff0aefae9        563MB
+srcs-wordpress:latest   1b42e9fb8cc6        428MB
+```
