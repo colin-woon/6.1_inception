@@ -47,5 +47,5 @@ fi
 chown -R www-data:www-data /var/www/html
 
 # 3. Start PHP-FPM
-echo "Starting PHP-FPM"
-exec php-fpm${$PHP_VERSION} -F
+echo "Starting PHP-FPM ${PHP_VERSION}"
+exec php-fpm${PHP_VERSION} -F

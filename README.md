@@ -18,6 +18,7 @@ Setup process in order
 - `docker cp <container_id>:/etc/php/8.2/fpm/pool.d/www.conf ./reference_www.conf.` Stick this in a folder called `/docs` or `.ignore` it. Copies the original config file to host machine, which contains comments and default settings, if you want to overwrite, use any other name after the letter `w` from `www.conf` so the next config file will overwrite the default one, prefix it with `z-` (e.g., `z-custom.conf`)
 
 - `dpkg -L <package>` -- shows all files installed along the package to see what exists, it'll give a list
+- `apk info -L <package_name>` (equal to dpkg -L \<package_name\>)
 - `docker exec -it <container> bash` launch bash as seperate process in container
 
 - Debian Slim images are still huge in the end, even with --no-install-recommends
@@ -33,3 +34,4 @@ srcs-wordpress:latest   1b42e9fb8cc6        428MB
 ```
 - okay so im not going to refactor all images to use alpine now cause its a preoptimization trap, i need to focus more on how to orchestrate the services instead of worrying about the size first, it would be a later implementation
 - so will stick to the original plan of using alpine only for nginx
+
