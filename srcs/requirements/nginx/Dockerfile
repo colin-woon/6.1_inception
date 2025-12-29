@@ -1,7 +1,7 @@
 ARG PENULTIMATE_ALPINE_STABLE_VERSION="3.22"
 FROM alpine:$PENULTIMATE_ALPINE_STABLE_VERSION
 
-RUN apk update && apk add --no-cache nginx openssl
+RUN apk add --no-cache nginx openssl
 
 ARG DOMAIN_NAME="<login>.42.my"
 RUN mkdir -p /etc/nginx/ssl && \

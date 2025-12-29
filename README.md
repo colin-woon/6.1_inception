@@ -1,37 +1,14 @@
-Setup process in order
-- VirtualBox Ubuntu Server
-- Remote SSH from VS Code to utilize the extensions
-- Docker Engine <https://docs.docker.com/engine/install/ubuntu/>
-- Docker user group
-- File Structure and gitignores
+*This project has been created as part of the 42 curriculum by cwoon*
 
-- Penultimate Stable Version at 10/12/2025
-	- Debian - Bookworm (v12), latest is Trixie (13)
-	- Alpine - (3.22), latest is (3.23)
-- MariaDB (doesnt depend on anything) (Debian)
-- Wordpress (depends on MariaDB) (Debian)
-- NGINX (needs wordpress entrypoint) (Alpine)
+# Description
+# Instructions
+# Resources
 
-`docker run --rm -it debian:bookworm-slim bash`
-- before finalizing your dockerfile, scripts or config etc, run this, and run all the commands you planned inside
-- `--rm` immediately removes the container after it dies
-- `docker cp <container_id>:/etc/php/8.2/fpm/pool.d/www.conf ./reference_www.conf.` Stick this in a folder called `/docs` or `.ignore` it. Copies the original config file to host machine, which contains comments and default settings, if you want to overwrite, use any other name after the letter `w` from `www.conf` so the next config file will overwrite the default one, prefix it with `z-` (e.g., `z-custom.conf`)
+# Project Description
+## Design Choices
+## Virtual Machines vs Docker
+## Secrets vs Environment Variables
+## Docker Network vs Host Network
+## Docker Volumes vs Bind Mounts
 
-- `dpkg -L <package>` -- shows all files installed along the package to see what exists, it'll give a list
-- `apk info -L <package_name>` (equal to dpkg -L \<package_name\>)
-- `docker exec -it <container> bash` launch bash as seperate process in container
-
-- Debian Slim images are still huge in the end, even with --no-install-recommends
-- Refactoring to use alpine
-```bash
-cwoon@cwoon:~$ docker images
-                              i Info →   U  In Use
-IMAGE                   ID             DISK USAGE
-alpine/curl:latest      85cf2e805a7c         21MB
-debian:bookworm-slim    e899040a73d3        116MB
-srcs-mariadb:latest     6f3ff0aefae9        563MB
-srcs-wordpress:latest   1b42e9fb8cc6        428MB
-```
-- okay so im not going to refactor all images to use alpine now cause its a preoptimization trap, i need to focus more on how to orchestrate the services instead of worrying about the size first, it would be a later implementation
-- so will stick to the original plan of using alpine only for nginx
-
+What are the differences between dev and user doc

@@ -1,7 +1,6 @@
 #!/bin/bash
 set -e # Exit instantly if any command failed
 
-# FIX THIS SHIT
 # 1. Idempotency check
 if [ -d "/var/lib/mysql/${MYSQL_DATABASE}" ]; then
 	echo "Database ${MYSQL_DATABASE} already initialized. Starting server..."
