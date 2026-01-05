@@ -1,86 +1,69 @@
 services:
-  mariadb:
-    build:
-      context: ./requirements/mariadb
-      dockerfile: Dockerfile
-      args:
-        - PENULTIMATE_DEBIAN_STABLE_VERSION=${PENULTIMATE_DEBIAN_STABLE_VERSION}
-    container_name: mariadb-test
-    environment:
-      - MYSQL_DATABASE=${MYSQL_DATABASE}
-      - MYSQL_USER=${MYSQL_USER}
-      - MYSQL_PASSWORD=${MYSQL_PASSWORD}
-      - MYSQL_ROOT_PASSWORD=${MYSQL_ROOT_PASSWORD}
-    volumes:
-      - mariadb_data:/var/lib/mysql:rw
-    networks:
-      - inception
-    restart: always
+    mariadb:
+        build:
+            context: ./requirements/mariadb
+            dockerfile: Dockerfile
+            args:
+                - PENULTIMATE_DEBIAN_STABLE_VERSION=${PENULTIMATE_DEBIAN_STABLE_VERSION}
+        container_name: mariadb-test
+        env_file: .env
+        volumes:
+            - mariadb_data:/var/lib/mysql:rw
+        networks:
+            - inception
+        restart: always
 
-  wordpress:
-    build:
-      context: ./requirements/wordpress
-      dockerfile: Dockerfile
-      args:
-        - PENULTIMATE_DEBIAN_STABLE_VERSION=${PENULTIMATE_DEBIAN_STABLE_VERSION}
-        - PHP_VERSION=${PHP_VERSION}
-    container_name: wordpress-test
-    depends_on:
-      - mariadb
-    environment:
-      - MYSQL_DATABASE=${MYSQL_DATABASE}
-      - MYSQL_USER=${MYSQL_USER}
-      - MYSQL_PASSWORD=${MYSQL_PASSWORD}
-      - MYSQL_ROOT_PASSWORD=${MYSQL_ROOT_PASSWORD}
-      - PHP_VERSION=${PHP_VERSION}
-      - DOMAIN_NAME=${DOMAIN_NAME}
-      - SITE_TITLE=${SITE_TITLE}
-      - WP_ADMIN_USER=${WP_ADMIN_USER}
-      - WP_ADMIN_PASSWORD=${WP_ADMIN_PASSWORD}
-      - WP_ADMIN_EMAIL=${WP_ADMIN_EMAIL}
-      - WP_USER=${WP_USER}
-      - WP_USER_PASSWORD=${WP_USER_PASSWORD}
-      - WP_USER_EMAIL=${WP_USER_EMAIL}
-    volumes:
-      - wordpress_data:/var/www/html:rw
-    networks:
-      - inception
-    restart: always
+    wordpress:
+        build:
+            context: ./requirements/wordpress
+            dockerfile: Dockerfile
+            args:
+                - PENULTIMATE_DEBIAN_STABLE_VERSION=${PENULTIMATE_DEBIAN_STABLE_VERSION}
+                - PHP_VERSION=${PHP_VERSION}
+        container_name: wordpress-test
+        depends_on:
+            - mariadb
+        env_file: .env
+        volumes:
+            - wordpress_data:/var/www/html:rw
+        networks:
+            - inception
+        restart: always
 
-  nginx:
-    build:
-      context: ./requirements/nginx
-      dockerfile: Dockerfile
-      args:
-        - PENULTIMATE_ALPINE_STABLE_VERSION=${PENULTIMATE_ALPINE_STABLE_VERSION}
-        - DOMAIN_NAME=${DOMAIN_NAME}
-    container_name: nginx-test
-    ports:
-      - "443:443"
-    volumes:
-      - wordpress_data:/var/www/html:ro
-    networks:
-      - inception
-    restart: always
-    # environment:
+    nginx:
+        build:
+            context: ./requirements/nginx
+            dockerfile: Dockerfile
+            args:
+                - PENULTIMATE_ALPINE_STABLE_VERSION=${PENULTIMATE_ALPINE_STABLE_VERSION}
+                - DOMAIN_NAME=${DOMAIN_NAME}
+        container_name: nginx-test
+        ports:
+            - "443:443"
+        volumes:
+            - wordpress_data:/var/www/html:ro
+        networks:
+            - inception
+        restart: always
+        # environment:
 
 volumes:
-  mariadb_data:
-    name: mariadb_data
-    driver: local
-    driver_opts:
-      type: none
-      o: bind
-      device: /home/cwoon/data/mariadb
-  wordpress_data:
-    name: wordpress_data
-    driver: local
-    driver_opts:
-      type: none
-      o: bind
-      device: /home/cwoon/data/wordpress
+    mariadb_data:
+        name: mariadb_data
+        driver: local
+        driver_opts:
+            type: none
+            o: bind
+            device: /home/cwoon/data/mariadb
+    wordpress_data:
+        name: wordpress_data
+        driver: local
+        driver_opts:
+            type: none
+            o: bind
+            device: /home/cwoon/data/wordpress
 
 networks:
-  inception:
-    driver: bridge
-    name: inception
+    inception:
+        driver: bridge
+        name: inception

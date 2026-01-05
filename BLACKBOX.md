@@ -48,13 +48,42 @@ listen [::]:443 ssl - IPv6 configuration, :: is like 0.0.0.0 for IPv4, because :
 ```
 
 4. What are the manual steps/commands to create Wordpress users
-5. How to break my infrastructure, get a 502 Bad Gateway Error from NGINX
-6. What is the clear distinction between the MariaDB users and the Wordpress users
-7. How much further can I optimize my docker-compose to be more configurable, less repeating vars, more solid IaC, seems like you can actually pass the configs in from the docker compose, so youll never really have to touch the dockerfiles
-8. Need to use secrets instead of env
-9. How to prove that nginx is sharing the volume with wordpress
-10. How to prove that all processes are running on PID 1, maybe can purposely try a tail -f command to make it loop and make things corrupted when you close it
-11. Justify the use of self-signed certificates instead of using CA ones
-12. Learn how to display the default nginx page with http://localhost:80
-13. Must the ssl cert be created in the nginx container, after creation can the package be deleted to keep it small, or is it overengineering, how to verify its creation, inside the container or outside
-14. Difference between Makefile and Docker Compose, whats the purpose of makefile, is it an industry standard
+```bash
+docker exec -it \<wordpress_container\> bash
+wp user create test test@mail.com --role=author --user_pass=pass --allow-root
+```
+- `--allow-root` is important as the safety mechanism for WP-CLI is to not allow root to run commands as it can mess up file permissions or allowed compromised plugin to gain full access to system
+- `www-data` is usually the owner of wordpress files in `/var/www/html`, can check with `ls -la` in that directory to see.
+
+1. Why is wordpress installation seperated from `Dockerfile` into `setup.sh`
+- `wp-cli` is the tool that installs wordpress, through `wp core download`
+- If wp was installed during the Dockerfile build phase, after it populates `/var/www/html` and the container launches, docker will mount the host machine volume that is connected to it (usually an empty file), and **overwrite** whats in the container, making all your wordpress files and configs disappear
+- `wp core install` needs to initialize wordpress default databases, if ran during the build phase, mariadb probably hasnt even launched yet, leading to database connection error
+
+2. How to break my infrastructure, get a 502 Bad Gateway Error from NGINX
+
+
+3. What is the clear distinction between the MariaDB users and the Wordpress users
+4. How much further can I optimize my docker-compose to be more configurable, less repeating vars, more solid IaC, seems like you can actually pass the configs in from the docker compose, so youll never really have to touch the dockerfiles
+5. Need to use secrets instead of env
+6.  How to prove that nginx is sharing the volume with wordpress
+7.  How to prove that all processes are running on PID 1, maybe can purposely try a tail -f command to make it loop and make things corrupted when you close it
+8.  Justify the use of self-signed certificates instead of using CA ones
+9.  Learn how to display the default nginx page with http://localhost:80
+10. Must the ssl cert be created in the nginx container, after creation can the package be deleted to keep it small, or is it overengineering, how to verify its creation, inside the container or outside
+11. Difference between Makefile and Docker Compose, whats the purpose of makefile, is it an industry standard
+12. There was a lot of warnings from AI that either my Dockerfile or my scripts was running as root and its considered dangaroues, need to find out which files is it referring to and why
+
+
+13. How to manually do port forwarding to access the wordpress website from my VM to my Host windows
+- Set NAT in VM settings, make sure Host and Guest ports are configured for 443, industry standard as browser assumes https:// uses port 443
+- if want to be visible to everyone on the network, leave Host IP empty, as it will default to 0.0.0.0, then just go to another device, and enter the host machine (your own computer's) IP address for the connected WiFi Network, will be able to see the site
+
+
+14. Why specifically port 443, how is it different from port 80
+- 80 is Hypertext Transfer Protocol, old school
+- 443 is Hypertext Transfer Protocol Secure, its HTTP wrapped inside an encrypted layer called TLS
+  - it will always try to perform the SSL/TLS handshake first between the client(browser) and the server
+
+15.  In wordpress container i made the php version as a variable, should i do the same for mariadb and nginx
+- yes, its for flexibility and maintainability, avoids modifying the dockerfile source

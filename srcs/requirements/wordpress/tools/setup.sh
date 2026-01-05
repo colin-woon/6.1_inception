@@ -43,6 +43,11 @@ else
     echo "WordPress installed successfully."
 fi
 
+# Important if host port is not 443, and you want to use different port, can uncomment and try to bind a different port, you will see 502
+echo "Configuring WordPress to handle ports correctly..."
+wp config set WP_HOME "'https://' . \$_SERVER['HTTP_HOST']" --raw --allow-root --path="/var/www/html"
+wp config set WP_SITEURL "'https://' . \$_SERVER['HTTP_HOST']" --raw --allow-root --path="/var/www/html"
+
 # Ensure the Specialist (www-data) owns the Body before starting
 chown -R www-data:www-data /var/www/html
 
