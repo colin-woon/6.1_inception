@@ -40,12 +40,12 @@ services:
         container_name: nginx-test
         ports:
             - "443:443"
+            # - "80:80"
         volumes:
             - wordpress_data:/var/www/html:ro
         networks:
             - inception
         restart: always
-        # environment:
 
 volumes:
     mariadb_data:
