@@ -1,26 +1,31 @@
 #!/bin/bash
 set -e # Exit instantly if any command failed
 
-# --- 1. SECRET LOADING HELPER ---
-# This function reads the file path provided by your _FILE variables
+# Helper: Reads the secret from the file if it exists, otherwise uses the raw value.
+# Usage: MYSQL_USER=$(get_secret "$MYSQL_USER_FILE" "$MYSQL_USER")
 get_secret() {
-    local var_name=$1
-    local file_path="${!var_name}"
-
-    if [ -f "$file_path" ]; then
-        cat "$file_path"
+    if [ -r "$1" ]; then
+        cat "$1"
     else
-        # If the file doesn't exist, we look for the variable without _FILE
-        # For example: if MYSQL_PASSWORD_FILE fails, look for MYSQL_PASSWORD
-        local fallback_var="${var_name%_FILE}"
-        echo "${!fallback_var}"
+        echo "$2"
+    fi
+}
+
+check_secret() {
+    if [ -z "$1" ]; then
+        echo "ERROR: $2 is not set!" >&2
+        exit 1
     fi
 }
 
 # Load secrets into local variables (not exported to env)
-MYSQL_USER=$(get_secret "MYSQL_USER_FILE")
-MYSQL_PASSWORD=$(get_secret "MYSQL_PASSWORD_FILE")
-MYSQL_ROOT_PASSWORD=$(get_secret "MYSQL_ROOT_PASSWORD_FILE")
+MYSQL_USER=$(get_secret "$MYSQL_USER_FILE" "$MYSQL_USER")
+MYSQL_PASSWORD=$(get_secret "$MYSQL_PASSWORD_FILE" "$MYSQL_PASSWORD")
+MYSQL_ROOT_PASSWORD=$(get_secret "$MYSQL_ROOT_PASSWORD_FILE" "$MYSQL_ROOT_PASSWORD")
+
+check_secret "$MYSQL_USER" "MYSQL_USER"
+check_secret "$MYSQL_PASSWORD" "MYSQL_PASSWORD"
+check_secret "$MYSQL_ROOT_PASSWORD" "MYSQL_ROOT_PASSWORD"
 
 # 1. Idempotency check
 if [ -d "/var/lib/mysql/${MYSQL_DATABASE}" ]; then
