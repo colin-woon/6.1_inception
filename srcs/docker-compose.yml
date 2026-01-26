@@ -7,10 +7,6 @@ services:
         - PENULTIMATE_DEBIAN_STABLE_VERSION=${PENULTIMATE_DEBIAN_STABLE_VERSION}
     container_name: mariadb-test
     env_file: .env
-    environment:
-      - MYSQL_USER_FILE=/run/secrets/db_credentials
-      - MYSQL_PASSWORD_FILE=/run/secrets/db_password
-      - MYSQL_ROOT_PASSWORD_FILE=/run/secrets/db_root_password
     volumes:
       - mariadb_data:/var/lib/mysql:rw
     networks:
@@ -32,14 +28,6 @@ services:
     depends_on:
       - mariadb
     env_file: .env
-    environment:
-      - MYSQL_USER_FILE=/run/secrets/db_credentials
-      - MYSQL_PASSWORD_FILE=/run/secrets/db_password
-      - MYSQL_ROOT_PASSWORD_FILE=/run/secrets/db_root_password
-      - WP_ADMIN_FILE=/run/secrets/wp_admin_credentials
-      - WP_ADMIN_PASSWORD_FILE=/run/secrets/wp_admin_password
-      - WP_USER_FILE=/run/secrets/wp_user_credentials
-      - WP_USER_PASSWORD_FILE=/run/secrets/wp_user_password
     volumes:
       - wordpress_data:/var/www/html:rw
     networks:
@@ -78,14 +66,14 @@ volumes:
     driver_opts:
       type: none
       o: bind
-      device: /home/cwoon/data/mariadb
+      device: ${VOLUME_MOUNT_PATH}/mariadb
   wordpress_data:
     name: wordpress_data
     driver: local
     driver_opts:
       type: none
       o: bind
-      device: /home/cwoon/data/wordpress
+      device: ${VOLUME_MOUNT_PATH}/wordpress
 
 networks:
   inception:
