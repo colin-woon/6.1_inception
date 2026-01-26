@@ -94,13 +94,22 @@ wp user create test test@mail.com --role=author --user_pass=pass --allow-root
 13.  Learn how to display the default nginx page with http://localhost:80
 
 
-14. Must the ssl cert be created in the nginx container, after creation can the package be deleted to keep it small, or is it overengineering, how to verify its creation, inside the container or outside
+14. **Must the ssl cert be created in the nginx container, after creation can the package be deleted to keep it small, or is it overengineering, how to verify its creation, inside the container or outside**
+- Option A, SSL in the Dockerfile, pros: container boots faster, cons: if domain name needs to change, image needs to be rebuild
+- Option B, SSL in the setup script, pros: highly configurable, easy to use .env variables to set domain name, cons: add a few seconds to container start
+- Option B is better for IaC, allows to change domain name whenever without rebuilding entire NGINX image
+- Dont have to delete openssl as in alpine its very small, although its common to do so for build tools in dockerfile
+- Verification steps:
+  - docker exec -it nginx-test ls -l /etc/nginx/ssl/
+  - docker exec -it nginx-test openssl x509 -in /etc/nginx/ssl/inception.crt -text -noout (inside container)
+OR
+  - echo | openssl s_client -connect localhost:443 -servername cwoon.42.fr 2>/dev/null | openssl x509 -noout -subject -dates (outside container)
 
+15.   **Difference between Makefile and Docker Compose, whats the purpose of makefile, is it an industry standard**
+- Apparently yes, Makefile sets up the host environment, while Docker compose orchestrates the containers, bash scripts handle more complex logic, and Makefile and bash scripts are used together for automation
 
-15. Difference between Makefile and Docker Compose, whats the purpose of makefile, is it an industry standard
-
-
-16. There was a lot of warnings from AI that either my Dockerfile or my scripts was running as root and its considered dangaroues, need to find out which files is it referring to and why
+16. **There was a lot of warnings from AI that either my Dockerfile or my scripts was running as root and its considered dangaroues, need to find out which files is it referring to and why**
+- Principle of Least Privilege, all final execution should not run as root, if the container is compromised, root access allows all stuffs, so the PID 1 processes should ideally be in the lowest privelege
 
 
 17. How to manually do port forwarding to access the wordpress website from my VM to my Host windows
