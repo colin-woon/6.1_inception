@@ -1,4 +1,30 @@
 #!/bin/bash
+set -e
+
+# --- 1. SECRET LOADING HELPER ---
+# This function reads the file path provided by your _FILE variables
+get_secret() {
+    local var_name=$1
+    local file_path="${!var_name}"
+
+    if [ -f "$file_path" ]; then
+        cat "$file_path"
+    else
+        # If the file doesn't exist, we look for the variable without _FILE
+        # For example: if MYSQL_PASSWORD_FILE fails, look for MYSQL_PASSWORD
+        local fallback_var="${var_name%_FILE}"
+        echo "${!fallback_var}"
+    fi
+}
+
+# Load secrets into local variables (not exported to env)
+MYSQL_USER=$(get_secret "MYSQL_USER_FILE")
+MYSQL_PASSWORD=$(get_secret "MYSQL_PASSWORD_FILE")
+MYSQL_ROOT_PASSWORD=$(get_secret "MYSQL_ROOT_PASSWORD_FILE")
+WP_USER=$(get_secret "WP_USER_FILE")
+WP_USER_PASSWORD=$(get_secret "WP_USER_PASSWORD_FILE")
+WP_ADMIN_USER=$(get_secret "WP_ADMIN_USER_FILE")
+WP_ADMIN_PASSWORD=$(get_secret "WP_ADMIN_PASSWORD_FILE")
 
 # 1. Wait for MariaDB to actually be ready
 # We use mariadb-client to ping the host until it answers
