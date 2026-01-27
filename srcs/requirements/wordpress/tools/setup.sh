@@ -78,6 +78,17 @@ else
     echo "WordPress installed successfully."
 fi
 
+# 1. Install and activate the Redis Cache plugin
+wp plugin install redis-cache --activate --allow-root --path='/var/www/html'
+
+# 2. Add Redis config to wp-config.php
+# We point it to our container name 'redis' on port 6379
+wp config set WP_REDIS_HOST redis --allow-root --path='/var/www/html'
+wp config set WP_REDIS_PORT 6379 --raw --allow-root --path='/var/www/html'
+
+# 3. Enable the object cache
+wp redis enable --allow-root --path='/var/www/html'
+
 # Important if host port is not 443, and you want to use different port, can uncomment and try to bind a different port, you will see 502
 echo "Configuring WordPress to handle ports correctly..."
 wp config set WP_HOME "'https://' . \$_SERVER['HTTP_HOST']" --raw --allow-root --path="/var/www/html"

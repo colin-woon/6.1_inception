@@ -72,6 +72,19 @@ services:
       - inception
     restart: always
 
+  redis:
+    build:
+      context: ./requirements/redis
+      dockerfile: Dockerfile
+      args:
+        - PENULTIMATE_DEBIAN_STABLE_VERSION=${PENULTIMATE_DEBIAN_STABLE_VERSION}
+    container_name: redis-test
+    depends_on:
+      - wordpress
+    networks:
+      - inception
+    restart: always
+
 volumes:
   mariadb_data:
     name: mariadb_data
