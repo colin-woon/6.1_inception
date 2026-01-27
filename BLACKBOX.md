@@ -144,4 +144,5 @@ In a LEMP stack:
 
 BONUS
 24. find out why commenting out the proxy_set_headers still works, whats the difference
-25.
+25. how to break redis
+26. how to know redis is working, actually using its functionality?
