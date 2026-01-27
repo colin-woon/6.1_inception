@@ -83,8 +83,9 @@ wp plugin install redis-cache --activate --allow-root --path='/var/www/html'
 
 # 2. Add Redis config to wp-config.php
 # We point it to our container name 'redis' on port 6379
-wp config set WP_REDIS_HOST redis --allow-root --path='/var/www/html'
+wp config set WP_REDIS_HOST redis-test --allow-root --path='/var/www/html'
 wp config set WP_REDIS_PORT 6379 --raw --allow-root --path='/var/www/html'
+# wp config set WP_REDIS_CLIENT predis --allow-root --path='/var/www/html'
 
 # 3. Enable the object cache
 wp redis enable --allow-root --path='/var/www/html'
