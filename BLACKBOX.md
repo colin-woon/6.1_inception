@@ -140,3 +140,8 @@ In a LEMP stack:
 
 23. for wordpress PID 1, why is it root user instead of www-data
 - the PHP-FPM needs root to bind to port 9000 and switch users, its workers should correctly switch to www-data user
+
+
+BONUS
+24. find out why commenting out the proxy_set_headers still works, whats the difference
+25.

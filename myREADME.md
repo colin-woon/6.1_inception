@@ -39,3 +39,17 @@ Why use Alpine Linux
 - musl, libc, busybox, all tiny versions of many common UNIX utilizies stored into a single executable
 - minimal base, always 5mb image size, where slim ubuntu is 30mb
 - no man pages, documentation, extra kernels, these will bloat the container
+
+`curl -k -v --tlsv1.1 https://localhost`
+
+checks the env value in the docker container
+`docker exec mariadb-test env | grep PASSWORD`
+
+info.php - using this file with the content below, youre able to see the setup in detail of a specific website or service
+`<?php phpinfo(); ?>`
+```conf
+	proxy_set_header Host $host;
+	proxy_set_header X-Real-IP $remote_addr;
+	proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+	proxy_set_header X-Forwarded-Proto $scheme;
+```
