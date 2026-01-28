@@ -104,6 +104,28 @@ services:
       - "21100-21110:21100-21110"
     restart: always
 
+  cadvisor:
+    build:
+      context: ./requirements/bonus/cadvisor
+      dockerfile: Dockerfile
+      args:
+        - PENULTIMATE_DEBIAN_STABLE_VERSION=${PENULTIMATE_DEBIAN_STABLE_VERSION}
+    container_name: cadvisor-test
+    ports:
+      - "8080:8080"
+    volumes:
+      - /:/rootfs:ro
+      - /var/run:/var/run:ro
+      - /sys:/sys:ro
+      - /var/lib/docker/:/var/lib/docker:ro
+      - /dev/disk/:/dev/disk:ro
+    privileged: true
+    devices:
+      - /dev/kmsg
+    networks:
+      - inception
+    restart: always
+
 volumes:
   mariadb_data:
     name: mariadb_data
