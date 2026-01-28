@@ -12,6 +12,7 @@ all : up
 setup:
 	mkdir -p $(DATA_PATH)/mariadb
 	mkdir -p $(DATA_PATH)/wordpress
+	mkdir -p $(DATA_PATH)/uptime-kuma
 	echo "$(GREEN) Data volumes created at $(DATA_PATH)$(RESET)"
 
 up : setup

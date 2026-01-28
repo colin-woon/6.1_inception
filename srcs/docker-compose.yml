@@ -126,6 +126,19 @@ services:
       - inception
     restart: always
 
+  uptime_kuma:
+    build:
+      context: ./requirements/bonus/uptime-kuma
+      dockerfile: Dockerfile
+      args:
+        - PENULTIMATE_DEBIAN_STABLE_VERSION=${PENULTIMATE_DEBIAN_STABLE_VERSION}
+    container_name: uptime-kuma-test
+    volumes:
+      - uptime-kuma_data:/app/data
+    networks:
+      - inception
+    restart: always
+
 volumes:
   mariadb_data:
     name: mariadb_data
@@ -141,6 +154,13 @@ volumes:
       type: none
       o: bind
       device: ${VOLUME_MOUNT_PATH}/wordpress
+  uptime-kuma_data:
+    name: uptime-kuma_data
+    driver: local
+    driver_opts:
+      type: none
+      o: bind
+      device: ${VOLUME_MOUNT_PATH}/uptime-kuma
 
 networks:
   inception:

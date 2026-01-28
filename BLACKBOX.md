@@ -150,3 +150,5 @@ BONUS
 28. can i only prove the ftp works with terminal commands, no ui?
 29. what are the ftp ports, never seen those numbers before
 30. what are the uids and how are they relevant
+31. find out how does the cgroups work for manual cadvisor installation, there were lots of volumes
+32. to explore multi-stage building in dockerfiles
