@@ -146,3 +146,7 @@ BONUS
 24. find out why commenting out the proxy_set_headers still works, whats the difference
 25. how to break redis
 26. how to know redis is working, actually using its functionality?
+27. how does the ftp work?
+28. can i only prove the ftp works with terminal commands, no ui?
+29. what are the ftp ports, never seen those numbers before
+30. what are the uids and how are they relevant

@@ -85,6 +85,25 @@ services:
       - inception
     restart: always
 
+  ftp:
+    build:
+      context: ./requirements/ftp
+      dockerfile: Dockerfile
+      args:
+        - PENULTIMATE_ALPINE_STABLE_VERSION=${PENULTIMATE_ALPINE_STABLE_VERSION}
+    container_name: ftp-test
+    env_file: .env
+    volumes:
+      - wordpress_data:/var/www/html:rw
+    networks:
+      - inception
+    secrets:
+      - ftp_password
+    ports:
+      - "21:21"
+      - "21100-21110:21100-21110"
+    restart: always
+
 volumes:
   mariadb_data:
     name: mariadb_data
@@ -128,3 +147,6 @@ secrets:
   wp_user_password:
     name: wp_user_password
     file: ../secrets/wp_user_password.txt
+  ftp_password:
+    name: ftp_password
+    file: ../secrets/ftp_password.txt
