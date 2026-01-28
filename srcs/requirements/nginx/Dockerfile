@@ -15,7 +15,8 @@ RUN mkdir -p /etc/nginx/ssl && \
 # COPY conf/custom-nginx-80.conf /etc/nginx/http.d/z-custom-nginx.conf
 COPY conf/custom-nginx.conf /etc/nginx/http.d/z-custom-nginx.conf
 
-RUN mkdir -p /var/www/html
+RUN mkdir -p /var/www/html /var/www/portfolio
+COPY ./static /var/www/portfolio
 
 # This makes 'docker logs' actually work, treats logs as streams instead of files, following Twelve-Factor App methodology
 RUN ln -sf /dev/stdout /var/log/nginx/access.log \
