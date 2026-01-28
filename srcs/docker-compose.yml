@@ -61,7 +61,7 @@ services:
 
   adminer:
     build:
-      context: ./requirements/adminer
+      context: ./requirements/bonus/adminer
       dockerfile: Dockerfile
       args:
         - PENULTIMATE_ALPINE_STABLE_VERSION=${PENULTIMATE_ALPINE_STABLE_VERSION}
@@ -74,7 +74,7 @@ services:
 
   redis:
     build:
-      context: ./requirements/redis
+      context: ./requirements/bonus/redis
       dockerfile: Dockerfile
       args:
         - PENULTIMATE_DEBIAN_STABLE_VERSION=${PENULTIMATE_DEBIAN_STABLE_VERSION}
@@ -87,7 +87,7 @@ services:
 
   ftp:
     build:
-      context: ./requirements/ftp
+      context: ./requirements/bonus/ftp
       dockerfile: Dockerfile
       args:
         - PENULTIMATE_ALPINE_STABLE_VERSION=${PENULTIMATE_ALPINE_STABLE_VERSION}
