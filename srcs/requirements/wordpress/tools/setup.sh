@@ -5,7 +5,7 @@ set -e
 # Usage: MYSQL_USER=$(get_secret "$MYSQL_USER_FILE" "$MYSQL_USER")
 get_secret() {
     if [ -r "$1" ]; then
-        cat "$1"
+        cat "$1" | tr -d '\n'
     else
         echo "$2"
     fi

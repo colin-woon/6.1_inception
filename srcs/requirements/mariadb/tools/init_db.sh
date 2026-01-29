@@ -5,7 +5,7 @@ set -e # Exit instantly if any command failed
 # Usage: MYSQL_USER=$(get_secret "$MYSQL_USER_FILE" "$MYSQL_USER")
 get_secret() {
     if [ -r "$1" ]; then
-        cat "$1"
+        cat "$1" | tr -d '\n'
     else
         echo "$2"
     fi
@@ -57,10 +57,12 @@ fi
 mariadb -u root <<_EOF_
 -- strict mode off for init might save headaches, but let's be precise
 CREATE DATABASE IF NOT EXISTS \`${MYSQL_DATABASE}\`;
+CREATE DATABASE IF NOT EXISTS \`${MYSQL_KUMA_DATABASE:-kuma}\`;
 
 -- Create App User
 CREATE USER IF NOT EXISTS \`${MYSQL_USER}\`@'%' IDENTIFIED BY '${MYSQL_PASSWORD}';
 GRANT ALL PRIVILEGES ON \`${MYSQL_DATABASE}\`.* TO \`${MYSQL_USER}\`@'%';
+GRANT ALL PRIVILEGES ON \`${MYSQL_KUMA_DATABASE:-kuma}\`.* TO \`${MYSQL_USER}\`@'%';
 
 -- Create Remote Root (The Missing Piece)
 CREATE USER IF NOT EXISTS 'root'@'%' IDENTIFIED BY '${MYSQL_ROOT_PASSWORD}';

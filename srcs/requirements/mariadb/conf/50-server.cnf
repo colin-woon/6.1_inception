@@ -13,3 +13,8 @@ bind-address = 0.0.0.0
 
 query_cache_size = 16M
 ; log_error = /var/log/mysql/error.log
+
+# -- RELAX INNODB LIMITS (Crucial for Uptime Kuma)
+innodb_strict_mode = 0
+innodb_default_row_format = 'DYNAMIC'
+innodb_file_per_table = 1
