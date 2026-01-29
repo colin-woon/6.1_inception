@@ -53,3 +53,5 @@ info.php - using this file with the content below, youre able to see the setup i
 	proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
 	proxy_set_header X-Forwarded-Proto $scheme;
 ```
+
+`free -m` in ubuntu can see the memory usage and clearance and cached
