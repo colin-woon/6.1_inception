@@ -8,28 +8,28 @@ This project is a System Administration exercise designed to broaden the knowled
 - A VM configured with 8gb ram, 4 cores (min 4gb, 2 cores)
 - Ubuntu Server ISO
 - Docker Engine
-- Host Configuration: Add `127.0.0.1` `<YOUR_LOGIN>.42.<COUNTRY>` to your `/etc/hosts` file.
-- Setup your `.env` following the `.env.example`
+- Setup your `.env` following the `.env.example`, `DOMAIN_NAME` format = `<YOUR_LOGIN>.42.<COUNTRY>`
+- Host Configuration: Add `127.0.0.1` `https://$DOMAIN_NAME` to your `/etc/hosts` file.
 - Create the following `secrets`:
-  - db_credentials.txt
-  - db_password.txt
-  - db_root_password.txt
-  - ftp_password.txt
-  - wp_admin_credentials.txt
-  - wp_admin_password.txt
-  - wp_user_credentials.txt
-  - wp_user_password.txt
+  - `db_credentials.txt`
+  - `db_password.txt`
+  - `db_root_password.txt`
+  - `ftp_password.txt`
+  - `wp_admin_credentials.txt`
+  - `wp_admin_password.txt`
+  - `wp_user_credentials.txt`
+  - `wp_user_password.txt`
 
 ## 2. Compilation and Execution
-- This infrastructure is managed by a `Makefile` at the root of the project
-- **NOTE: Change `$DATA_PATH` to match your VM directory structure.**
-`make` - Builds the docker images and starts all containers
-`make clean` - Clean everything (Containers, Networks, Images)
-`make fclean` - Hard resets the environment, even deletes the volume bind mounts in `$DATA_PATH`
+This infrastructure is managed by a `Makefile` at the root of the project
+**NOTE: Change `$DATA_PATH` to match your VM directory structure.**
+- `make` Builds the docker images and starts all containers
+- `make clean` Clean everything (Containers, Networks, Images)
+- `make fclean` Hard resets the environment, even deletes the volume bind mounts in `$DATA_PATH`
 
 ## 3. Requirements Verification
-- **Access**: Navigate to `https://<YOUR_LOGIN>>.42.<COUNTRY>` in your browser.
-- **SSL Check**: Run `curl -kv https://<YOUR_LOGIN>>.42.<COUNTRY>` to check for TLSv1.2/TLSv1.3 handshake
+- **Access**: Navigate to `https://$DOMAIN_NAME` in your browser.
+- **SSL Check**: Run `curl -kv https://$DOMAIN_NAME` to check for TLSv1.2/TLSv1.3 handshake
 - **PID 1 Processes**: Use `docker exec <container> ps aux` to ensure services are running on PID 1. Using `docker top <container>` showing only 1 process is also a good indicator, but `ps aux` is more reliable.
 
 # Resources
@@ -56,7 +56,7 @@ This project is a System Administration exercise designed to broaden the knowled
 - Setup initialization scripts
 - Understanding of service components
 - Assist in infrastructure decisions for best practices
-- Identifies security vulnerabilities
+- Identify security vulnerabilities
 
 # Project Description
 ## Design Choices
@@ -80,13 +80,10 @@ This project is a System Administration exercise designed to broaden the knowled
 ## Virtual Machines vs Docker
 | Feature | Virtual Machine          | Docker (Containers) |
 | ------- | ------------------------ | ------------------- |
-| **OS**  | Includes a full Guest OS |
-
- | Shares the Host OS kernel |
+| **OS**  | Includes a full Guest OS | Shares the Host OS kernel |
 | **Size** | Gigabytes (includes kernel/drivers) | Megabytes (e.g., Alpine is ~5MB) |
 | **Boot Time** | Minutes | Seconds |
 | **Isolation** | Hardware-level virtualization | Process-level isolation
-
 
 ## Secrets vs Environment Variables
 - **Environment Variables:** `.env` is easy to use but visible via `docker inspect <container>`. Used for non-sensitive data like `DOMAIN_NAME`.
@@ -95,7 +92,6 @@ This project is a System Administration exercise designed to broaden the knowled
 ## Docker Network vs Host Network
 - **Docker Network**: Creates an isolated bridge where containers communicate via service names (e.g., `wordpress:9000`). This is mandatory for this project.
 - **Host Network**: Bypasses isolation and uses the host's IP directly. This is strictly **forbidden** as it breaks the containerization principle.
-
 
 ## Docker Volumes vs Bind Mounts
 - **Docker Volumes**: Managed by Docker in a specific part of the host file system. Preferred for database persistence.
