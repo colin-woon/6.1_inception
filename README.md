@@ -9,7 +9,7 @@ This project is a System Administration exercise designed to broaden the knowled
 - Ubuntu Server ISO
 - Docker Engine
 - Setup your `.env` following the `.env.example`, `DOMAIN_NAME` format = `<YOUR_LOGIN>.42.<COUNTRY>`
-- Host Configuration: Add `127.0.0.1` `https://$DOMAIN_NAME` to your `/etc/hosts` file.
+- Host Configuration: Add `127.0.0.1 $DOMAIN_NAME` to your `/etc/hosts` file.
 - Create the following `secrets`:
   - `db_credentials.txt`
   - `db_password.txt`
@@ -60,6 +60,12 @@ This infrastructure is managed by a `Makefile` at the root of the project
 
 # Project Description
 ## Design Choices
+- **Ubuntu Server VM instead of WSL2**
+  - **Strict Kernel Isolation:** WSL2 abstracts away a lot of low-level Linux behaviours to make it compatible with Windows. Using an Ubuntu VM ensures that we familiarize ourselves with the default environment of most cloud server setups
+  - **Networking Integrity:** Using Bridge/NAT configuration for Ubuntu VM is simpler and more straighforward
+  - **Linux Permission Consistency:** Controlling permissions on Windows folders that are mapped to containers will struggle with the 9P protocol
+  - **Avoiding "VM Inception" Overload:** Running Docker Desktop on Windows requires the WSL2 Utility VM, which in turn runs its own internal containers. Building this project inside a dedicated Ubuntu VM avoids this "nesting" of virtualization layers, leading to more predictable performance and a cleaner process tree.
+
 - **Penultimate Stable Versions as of 10/12/2025:**
   - **Debian Slim** - Bookworm (v12), latest is Trixie (13) `glibc`
     - **For services that require stability and have complex runtimes:**
@@ -85,14 +91,21 @@ This infrastructure is managed by a `Makefile` at the root of the project
 | **Boot Time** | Minutes | Seconds |
 | **Isolation** | Hardware-level virtualization | Process-level isolation
 
-## Secrets vs Environment Variables
-- **Environment Variables:** `.env` is easy to use but visible via `docker inspect <container>`. Used for non-sensitive data like `DOMAIN_NAME`.
-- **Secrets:** Stored in files (e.g., db_password.txt) and ignored by Git.
-
-## Docker Network vs Host Network
-- **Docker Network**: Creates an isolated bridge where containers communicate via service names (e.g., `wordpress:9000`). This is mandatory for this project.
-- **Host Network**: Bypasses isolation and uses the host's IP directly. This is strictly **forbidden** as it breaks the containerization principle.
+### Docker's 3 underlying technologies
+- **Namespaces** (Process Isolation) `/proc/<PID>/`
+- **cgroups** (Resource management) `/sys/fs/cgroup/system.slice/docker-<ID>`
+- **Union File System** (Copy-On-Write) `mount | overlay`
 
 ## Docker Volumes vs Bind Mounts
 - **Docker Volumes**: Managed by Docker in a specific part of the host file system. Preferred for database persistence.
 - **Bind Mounts**: Maps a specific host path (e.g., `/home/cwoon/data`) to a container path. Used here to ensure data persists even if containers are deleted and recreated.
+
+## Secrets vs Environment Variables
+- **Environment Variables:** `.env` is easy to use but visible via `docker inspect <container>`. Used for non-sensitive data like `DOMAIN_NAME`.
+- **Secrets:** Stored in files (e.g., db_password.txt) and can be ignored by Git, its a **read-only bind mount** to `/run/secrets`. So you can control its access permissions with `chmod` like in Linux. Won't be baked as metadata in the image also when pushed to a container registry.
+
+## Docker Network vs Host Network
+- **Docker Network**: Creates an isolated bridge where containers communicate via service names (e.g., `wordpress:9000`). This is mandatory for this project. Typically named as `docker0` on linux environments.
+- **Host Network**: Bypasses isolation and uses the host's IP directly. All containers will be sharing the network namespace. This is strictly **forbidden** as it breaks the containerization principle.
+
+## BONUSES
