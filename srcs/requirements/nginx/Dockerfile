@@ -25,6 +25,6 @@ RUN ln -sf /dev/stdout /var/log/nginx/access.log \
 EXPOSE 443
 # EXPOSE 80
 
-# # For testing tail -f, use time docker stop nginx-test and it should take at least 10 seconds
+# # For testing tail -f, use time docker stop nginx and it should take at least 10 seconds
 # CMD nginx && tail -f /dev/null
 CMD ["nginx", "-g", "daemon off;"]

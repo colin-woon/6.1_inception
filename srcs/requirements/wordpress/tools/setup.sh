@@ -38,7 +38,7 @@ check_secret "$WP_ADMIN_PASSWORD" "WP_ADMIN_PASSWORD"
 # 1. Wait for MariaDB to actually be ready
 # We use mariadb-client to ping the host until it answers
 echo "Waiting for MariaDB..."
-until mariadb-admin ping -h"mariadb-test" -u root -p${MYSQL_ROOT_PASSWORD} --silent; do
+until mariadb-admin ping -h"mariadb" -u root -p${MYSQL_ROOT_PASSWORD} --silent; do
     echo "MariaDB is still sleeping... retrying"
     sleep 1
 done
@@ -58,7 +58,7 @@ else
         --dbname="$MYSQL_DATABASE" \
         --dbuser="$MYSQL_USER" \
         --dbpass="$MYSQL_PASSWORD" \
-        --dbhost=mariadb-test:3306 \
+        --dbhost=mariadb:3306 \
 		--path="/var/www/html"
 
     # Install
@@ -83,7 +83,7 @@ wp plugin install redis-cache --activate --allow-root --path='/var/www/html'
 
 # 2. Add Redis config to wp-config.php
 # We point it to our container name 'redis' on port 6379
-wp config set WP_REDIS_HOST redis-test --allow-root --path='/var/www/html'
+wp config set WP_REDIS_HOST redis --allow-root --path='/var/www/html'
 wp config set WP_REDIS_PORT 6379 --raw --allow-root --path='/var/www/html'
 # wp config set WP_REDIS_CLIENT predis --allow-root --path='/var/www/html'
 
