@@ -3,29 +3,16 @@
 # Description
 This project is a System Administration exercise designed to broaden the knowledge on virtualization using Docker. The goal is to setup a small and secure infrastructure of services (NGINX, MariaDB, Wordpress) running in dedicated containers. The services must be built from scratch using custom Dockerfiles to ensure a deep understanding of container orchestration, networking, and volume management.
 
-# Instructions
+# Instructions *(refer to DEV_DOC.md for more details)*
 ## 1. Prerequisites (based on how this project was created)
+- Oracle VirtualBox
 - A VM configured with 8gb ram, 4 cores (min 4gb, 2 cores)
 - Ubuntu Server ISO
 - Docker Engine
 - Setup your `.env` following the `.env.example`, `DOMAIN_NAME` format = `<YOUR_LOGIN>.42.<COUNTRY>`
 - Host Configuration: Add `127.0.0.1 $DOMAIN_NAME` to your `/etc/hosts` file.
-- Create the following `secrets`:
-  - `db_credentials.txt`
-  - `db_password.txt`
-  - `db_root_password.txt`
-  - `ftp_password.txt`
-  - `wp_admin_credentials.txt`
-  - `wp_admin_password.txt`
-  - `wp_user_credentials.txt`
-  - `wp_user_password.txt`
-
-## 2. Compilation and Execution
-This infrastructure is managed by a `Makefile` at the root of the project
-**NOTE: Change `$DATA_PATH` to match your VM directory structure.**
-- `make` Builds the docker images and starts all containers
-- `make clean` Clean everything (Containers, Networks, Images)
-- `make fclean` Hard resets the environment, even deletes the volume bind mounts in `$DATA_PATH`
+- Create the `/secrets` folder and populate the secrets following the `.env.example`
+- The infrastructure is managed by a `Makefile` at the root of the project
 
 ## 3. Requirements Verification
 - **Access**: Navigate to `https://$DOMAIN_NAME` in your browser.
@@ -34,6 +21,8 @@ This infrastructure is managed by a `Makefile` at the root of the project
 
 # Resources
 ## Links
+- **Oracle VirtualBox**: https://www.virtualbox.org/wiki/Downloads
+- **Ubuntu Server ISO**: https://ubuntu.com/download/server#instant-vms-tab
 - **Docker Engine setup on Ubuntu Server**: https://docs.docker.com/engine/install/ubuntu/
 - **Docker Compose**: https://docs.docker.com/compose/
 - **Debian Slim Image**: https://hub.docker.com/_/debian
