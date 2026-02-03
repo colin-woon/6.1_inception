@@ -152,3 +152,15 @@ BONUS
 30. what are the uids and how are they relevant
 31. find out how does the cgroups work for manual cadvisor installation, there were lots of volumes
 32. to explore multi-stage building in dockerfiles
+33. check and see some of the bonus volumes should be a bind mount managed by docker or not
+
+
+MANDATORY TODO
+<!-- - rename all the `-test` stuff -->
+<!-- - visualize notes -->
+- Sign in as Wordpress user and try to comment (`/wp-login`)
+- Sign in as Administrator in WP to access dashboard, then edit a page, and verify it was updated (`/wp-admin`)
+- find out how to verify the SSL cert (`openssl s_client -connect localhost:443 -tls1_3`)
+- visualize infra
+- prepare a list of what, why, and how to verify something is working for the evals
+- add on bonuses documentation in README

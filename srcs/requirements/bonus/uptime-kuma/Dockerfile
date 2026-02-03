@@ -1,25 +1,29 @@
 ARG PENULTIMATE_DEBIAN_STABLE_VERSION=bookworm-slim
 FROM debian:${PENULTIMATE_DEBIAN_STABLE_VERSION}
 
-RUN apt-get update && apt-get install -y \
+RUN apt-get update && apt-get install -y --no-install-recommends \
     curl \
     git \
+    ca-certificates \
     python3 \
-    build-essential \
-    && curl -fsSL https://deb.nodesource.com/setup_22.x | bash - \
-    && apt-get install -y nodejs \
-    && apt-get clean && rm -rf /var/lib/apt/lists/*
+    unzip \
+    build-essential && \
+    update-ca-certificates && \
+    curl -fsSL https://bun.sh/install | bash && \
+    apt-get clean && \
+    rm -rf /var/lib/apt/lists/*
+
+ENV PATH="/root/.bun/bin:$PATH"
 
 WORKDIR /app
-RUN git clone https://github.com/louislam/uptime-kuma.git .
+RUN git clone --depth 1 https://github.com/louislam/uptime-kuma.git .
 
-RUN npm install npm -g && \
-    npm ci --production && \
-    npm run download-dist
+RUN bun install --production && \
+    bun run download-dist
 
 RUN mkdir -p /app/data
 VOLUME /app/data
 
 EXPOSE 3001
 
-CMD ["node", "server/server.js"]
+CMD ["bun", "server/server.js"]
