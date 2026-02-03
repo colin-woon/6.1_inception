@@ -18,10 +18,12 @@ setup:
 up : setup
 	echo "$(GREEN)Building and starting Inception...$(RESET)"
 	docker compose -f $(DOCKER_COMPOSE_FILE) up --build -d
+	docker system prune -f
 
 dev: setup
 	echo "$(GREEN)Building and starting Inception...$(RESET)"
 	docker compose -f $(DOCKER_COMPOSE_FILE) up --build --abort-on-container-exit
+	docker system prune -f
 
 down:
 	echo "$(GREEN)Stopping inception...$(RESET)"
