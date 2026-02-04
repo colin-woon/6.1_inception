@@ -28,19 +28,16 @@ FROM debian:${PENULTIMATE_DEBIAN_STABLE_VERSION}
 ARG DEBIAN_FRONTEND=noninteractive
 
 RUN apt-get update && apt-get install -y --no-install-recommends \
-    curl ca-certificates unzip && \
-    curl -fsSL https://bun.sh/install | bash && \
+    curl ca-certificates gnupg && \
+    curl -fsSL https://deb.nodesource.com/setup_24.x | bash - && \
+    apt-get install -y nodejs && \
     apt-get clean && rm -rf /var/lib/apt/lists/*
 
-ENV PATH="/root/.bun/bin:${PATH}"
 WORKDIR /app
 
-COPY --from=builder /app/dist ./dist
-COPY --from=builder /app/node_modules ./node_modules
-COPY --from=builder /app/server ./server
-COPY --from=builder /app/package.json ./package.json
+COPY --from=builder /app /app
 
 EXPOSE 3001
 VOLUME /app/data
 
-CMD ["bun", "server/server.js"]
+CMD ["node", "server/server.js"]
