@@ -34,14 +34,16 @@ if [ -z "$MYSQL_DATABASE" ]; then
 fi
 
 # 1. Idempotency check
-if [ ! -d "/var/lib/mysql/${MYSQL_DATABASE}" ]; then
-	echo "Initializing Database ${MYSQL_DATABASE}"
-	mariadb-install-db --user=mysql --datadir=/var/lib/mysql
+if [ -d "/var/lib/mysql/${MYSQL_DATABASE}" ]; then
+	echo "Database ${MYSQL_DATABASE} already initialized. Starting server..."
+	exec mariadbd --user=mysql --datadir=/var/lib/mysql --bind-address=0.0.0.0
 fi
 
+echo "Initializing Database ${MYSQL_DATABASE}"
+
 # 2. Start temporary server
+mariadb-install-db --user=mysql --datadir=/var/lib/mysql
 # & puts mariadb in background, $! gets the most recently executed process ID
-echo "Database ${MYSQL_DATABASE} already initialized. Starting server..."
 mariadbd --user=mysql --datadir=/var/lib/mysql --skip-networking & PID="$!"
 
 # 3. Polling
@@ -52,6 +54,12 @@ until mysqladmin ping -h localhost --silent; do
 done
 
 # 4. The SQL Injection (Now using variables!)
+# -- Create Remote Root (The Missing Piece)
+# CREATE USER IF NOT EXISTS 'root'@'%' IDENTIFIED BY '${MYSQL_ROOT_PASSWORD}';
+# GRANT ALL PRIVILEGES ON *.* TO 'root'@'%' WITH GRANT OPTION;
+# docker exec -it mariadb mariadb -u root -p
+# SELECT User, Host FROM mysql.user;
+# DROP USER IF EXISTS 'root'@'%';
 mariadb -u root <<_EOF_
 -- Fix Local Root
 -- We use ALTER here because root@localhost is created by install-db without a password (socket auth)
