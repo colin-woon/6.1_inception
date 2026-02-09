@@ -42,6 +42,8 @@ fi
 echo "Initializing Database ${MYSQL_DATABASE}"
 
 # 2. Start temporary server
+# MOST IMPORTANT ON WHY DOCKERFILE NEEDS TO BE ROOT FIRST:
+# this line setups everything and grants mysql user the access, needs root access to do so
 mariadb-install-db --user=mysql --datadir=/var/lib/mysql
 # & puts mariadb in background, $! gets the most recently executed process ID
 mariadbd --user=mysql --datadir=/var/lib/mysql --skip-networking & PID="$!"
@@ -54,6 +56,7 @@ until mysqladmin ping -h localhost --silent; do
 done
 
 # 4. The SQL Injection (Now using variables!)
+# NOTE: we still use root access because mysql user has no defined permissions yet
 # -- Create Remote Root (The Missing Piece)
 # CREATE USER IF NOT EXISTS 'root'@'%' IDENTIFIED BY '${MYSQL_ROOT_PASSWORD}';
 # GRANT ALL PRIVILEGES ON *.* TO 'root'@'%' WITH GRANT OPTION;
@@ -73,6 +76,7 @@ CREATE DATABASE IF NOT EXISTS \`${MYSQL_KUMA_DATABASE:-kuma}\`;
 CREATE USER IF NOT EXISTS \`${MYSQL_KUMA_USER}\`@'%' IDENTIFIED BY '${MYSQL_KUMA_PASSWORD}';
 GRANT SELECT, INSERT, UPDATE, DELETE, CREATE, DROP, ALTER, INDEX ON `${MYSQL_KUMA_DATABASE:-kuma}`.* TO `${MYSQL_KUMA_USER}`@'%';
 
+-- Restarts the internal cache for access privileges
 FLUSH PRIVILEGES;
 _EOF_
 

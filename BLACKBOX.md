@@ -153,14 +153,88 @@ BONUS
 31. find out how does the cgroups work for manual cadvisor installation, there were lots of volumes
 32. to explore multi-stage building in dockerfiles
 33. check and see some of the bonus volumes should be a bind mount managed by docker or not
+34. uptime kuma needs a while to only work
 
 
 MANDATORY TODO
 <!-- - rename all the `-test` stuff -->
 <!-- - visualize notes -->
+- visualize infra
+- add on bonuses documentation in README
+- make every user follow principle of least privilege
+
+- prepare a list of what, why, and how to verify something is working for the evals
+
+DOCKERFILE
+- ADD vs COPY (ADD can do remote url downloads like curl and also unzip files, but its not flexible, so COPY is more straightforward)
+- CMD vs ENTRYPOINT (CMD can be overridden, more like arguments passed in, ENTRYPOINT makes the container like an executable, always runs it, CMD is more for backup)
+- USER (sets the UID for the container instance, For maximum security, a specific UID different for each different services, different from the host machine, so if host machine is compromised, cant access files in other containers, MAINLY CONCERNED WITH VOLUMES OR MOUNTS ONLY)
+- EXPOSE (more for documentation on what port it is using)
+- how docker cache builds work (from least changed to most changes top to bottom, any changes triggers a rebuild from that moment onwards)
+- Copy-on-Write (1 image = 500mb, 1 container = 3mb extra, the rest read from image, 10 containers? = just 30mb instead of 5000mb)
+
+IDEMPOTENCY
+- explain what it is, refer to mariadb script is pretty good, show the remote root example with adminer
+
+NETWORK
+- **Docker VPN:** `docker network inspect inception`
+
+VOLUMES
+- **Wrapped and Managed by Docker:** should be able to see them with `docker volume ls`
+
+PID 1
+- Check PIDs in container: `docker exec <container> ps aux`
+- `tail -f` experiment: check nginx Dockerfile
+
+MARIADB
+- **Shows network connection:** try to ping from wordpress using `docker exec -it wordpress mysqladmin -h mariadb -u $MYSQL_USER -p$MYSQL_PASSWORD ping`
+- **Show persistence:** update wordpress page theme, then `make down` and `make` again
+- **Show mounts:** `docker inspect mariadb | grep -A 10 Mounts`
+- config (quite straight forward, located in /etc/mysql)
+- init script ()
+- what daemon used (mariadbd, comes from the mariadb-server package from apt repository, mysqladmin = utility tool, mariadb = client CLI, mariadbd = db server engine)
+
+WORDPRESS
 - Sign in as Wordpress user and try to comment (`/wp-login`)
 - Sign in as Administrator in WP to access dashboard, then edit a page, and verify it was updated (`/wp-admin`)
-- find out how to verify the SSL cert (`openssl s_client -connect localhost:443 -tls1_3`)
-- visualize infra
-- prepare a list of what, why, and how to verify something is working for the evals
-- add on bonuses documentation in README
+- Rename the `index.php` file, should get `403` or `404` error from nginx
+- explain FastCGI:
+  - *"NGINX is a web server, but it doesn't speak PHP. With NGINX as a Reverse Proxy, when a .php request comes in, NGINX wraps it in the FastCGI protocol and sends it to the WordPress container on port 9000. PHP-FPM (FastCGI Process Manager) then executes the code and sends the HTML back."*
+- config
+- init script
+- what daemon or CLI used
+
+NGINX
+- proxy means to handle for you, forward proxy is like a vpn, protects the client, while reverse proxy protects the server, intercepts incoming requests before they reach the server.
+- **Verify SSL cert:** `openssl s_client -connect localhost:443 -tls1_3`
+- explain why its sharing volumes with Wordpress
+  - *"Both NGINX and WordPress share the /var/www/html volume. This is critical because NGINX needs to serve static assets (CSS/Images) directly from the disk for speed, while the WordPress container needs the same files to execute the PHP logic. Without the shared volume, you'd get a functional site with no styling (broken CSS)."*
+- config
+- what daemon or CLI used
+
+ADMINER
+- installation
+- config
+- importance?
+- Just show the GUI at `/adminer`
+
+FTP
+- installation
+- config
+- importance?
+
+REDIS
+- installation
+- config
+- importance?
+
+CADVISOR
+- installation
+- config
+- importance?
+
+UPTIME KUMA
+- installation
+- config
+- importance?
+- Add all health statuses
