@@ -44,8 +44,11 @@ echo "Initializing Database ${MYSQL_DATABASE}"
 # 2. Start temporary server
 # MOST IMPORTANT ON WHY DOCKERFILE NEEDS TO BE ROOT FIRST:
 # this line setups everything and grants mysql user the access, needs root access to do so
-mariadb-install-db --user=mysql --datadir=/var/lib/mysql
 # & puts mariadb in background, $! gets the most recently executed process ID
+# --skip-networking & and ping
+	# - when initializing the DB (setting passwords/creating users), the database is vulnerable if its open to the public network.
+	# - `&` allows the DB to run in background so the script can continue, and `ping` waits for the DB to fully load because if you tried to run `CREATE DATABASE` right after starting the server it would fail
+mariadb-install-db --user=mysql --datadir=/var/lib/mysql
 mariadbd --user=mysql --datadir=/var/lib/mysql --skip-networking & PID="$!"
 
 # 3. Polling
@@ -68,6 +71,8 @@ mariadb -u root <<_EOF_
 -- We use ALTER here because root@localhost is created by install-db without a password (socket auth)
 ALTER USER 'root'@'localhost' IDENTIFIED BY '${MYSQL_ROOT_PASSWORD}';
 
+-- @'%' refers to any ip address can be connected as docker always resets to a different ip
+-- db_name.* refers to db level
 CREATE DATABASE IF NOT EXISTS \`${MYSQL_DATABASE}\`;
 CREATE USER IF NOT EXISTS \`${MYSQL_USER}\`@'%' IDENTIFIED BY '${MYSQL_PASSWORD}';
 GRANT SELECT, INSERT, UPDATE, DELETE, CREATE, DROP, ALTER, INDEX ON `${MYSQL_DATABASE}`.* TO `${MYSQL_USER}`@'%';
