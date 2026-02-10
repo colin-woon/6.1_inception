@@ -166,12 +166,13 @@ MANDATORY TODO
 - prepare a list of what, why, and how to verify something is working for the evals
 
 DOCKERFILE
-- ADD vs COPY (ADD can do remote url downloads like curl and also unzip files, but its not flexible, so COPY is more straightforward)
-- CMD vs ENTRYPOINT (CMD can be overridden, more like arguments passed in, ENTRYPOINT makes the container like an executable, always runs it, CMD is more for backup)
-- USER (sets the UID for the container instance, For maximum security, a specific UID different for each different services, different from the host machine, so if host machine is compromised, cant access files in other containers, MAINLY CONCERNED WITH VOLUMES OR MOUNTS ONLY)
-- EXPOSE (more for documentation on what port it is using)
-- how docker cache builds work (from least changed to most changes top to bottom, any changes triggers a rebuild from that moment onwards)
-- Copy-on-Write (1 image = 500mb, 1 container = 3mb extra, the rest read from image, 10 containers? = just 30mb instead of 5000mb)
+- **ADD vs COPY** (ADD can do remote url downloads like curl and also unzip files, but its not flexible, so COPY is more straightforward)
+- **CMD vs ENTRYPOINT** (CMD can be overridden, more like arguments passed in, ENTRYPOINT makes the container like an executable, always runs it, CMD is more for backup)
+- **USER** (sets the UID for the container instance, For maximum security, a specific UID different for each different services, different from the host machine, so if host machine is compromised, cant access files in other containers, MAINLY CONCERNED WITH VOLUMES OR MOUNTS ONLY)
+- **EXPOSE** (more for documentation on what port it is using)
+- **how docker cache builds work** (from least changed to most changes top to bottom, any changes triggers a rebuild from that moment onwards)
+- **Copy-on-Write** (1 image = 500mb, 1 container = 3mb extra, the rest read from image, 10 containers? = just 30mb instead of 5000mb)
+- **APT vs APT-GET** (apt is a wrapper for apt-get, apt-cache etc. its not really stable for scripting, apt-get is the industry standard for docker container scripts)
 
 IDEMPOTENCY
 - explain what it is, refer to mariadb script is pretty good, show the remote root example with adminer
@@ -200,9 +201,9 @@ WORDPRESS
 - Rename the `index.php` file, should get `403` or `404` error from nginx
 - explain FastCGI:
   - *"NGINX is a web server, but it doesn't speak PHP. With NGINX as a Reverse Proxy, when a .php request comes in, NGINX wraps it in the FastCGI protocol and sends it to the WordPress container on port 9000. PHP-FPM (FastCGI Process Manager) then executes the code and sends the HTML back."*
-- config
-- init script
-- what daemon or CLI used
+- config (located in /etc/php/${PHP_VERSION}/fpm/pool.d/z-custom-www.conf)
+- init script (download source code for wordpress, configure link to mariadb, init databases with an admin account and with wordpress stuff, create normal user and give access permissions)
+- what daemon or CLI used (its daemon is mainly php-fpm, wordpress is just a bunch of .php files and php-fpm executes them)
 
 NGINX
 - proxy means to handle for you, forward proxy is like a vpn, protects the client, while reverse proxy protects the server, intercepts incoming requests before they reach the server.

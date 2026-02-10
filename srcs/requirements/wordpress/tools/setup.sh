@@ -98,6 +98,6 @@ echo "Configuring WordPress to handle ports correctly..."
 # Ensure the Specialist (www-data) owns the Body before starting
 chown -R www-data:www-data /var/www/html
 
-# 3. Start PHP-FPM
+# 3. Start PHP-FPM as foreground (-F)
 echo "Starting PHP-FPM ${PHP_VERSION}"
 exec php-fpm${PHP_VERSION} -F
