@@ -17,6 +17,7 @@ setup:
 
 up : setup
 	echo "$(GREEN)Building and starting Inception...$(RESET)"
+	bash ./srcs/requirements/tools/generate_ssl_cert.sh
 	docker compose -f $(DOCKER_COMPOSE_FILE) up --build -d
 
 dev: setup

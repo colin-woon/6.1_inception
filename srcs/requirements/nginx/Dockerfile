@@ -2,14 +2,8 @@ ARG PENULTIMATE_ALPINE_STABLE_VERSION="3.22"
 FROM alpine:$PENULTIMATE_ALPINE_STABLE_VERSION
 
 ARG NGINX_VERSION="1.28.2-r0"
-RUN apk add --no-cache nginx=${NGINX_VERSION} openssl
+RUN apk add --no-cache nginx=${NGINX_VERSION}
 
-ARG DOMAIN_NAME="<login>.42.my"
-RUN mkdir -p /etc/nginx/ssl && \
-	openssl req -x509 -nodes -days 365 -newkey rsa:2048 \
-	-keyout /etc/nginx/ssl/inception.key \
-	-out /etc/nginx/ssl/inception.crt \
-	-subj "/C=MY/ST=KL/L=KL/O=42/OU=Inception/CN=${DOMAIN_NAME}"
 
 # For testing port 80 http, remember to change the docker compose 80:80
 # COPY conf/custom-nginx-80.conf /etc/nginx/http.d/z-custom-nginx.conf
