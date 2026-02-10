@@ -157,8 +157,6 @@ BONUS
 
 
 MANDATORY TODO
-<!-- - rename all the `-test` stuff -->
-<!-- - visualize notes -->
 - visualize infra
 - add on bonuses documentation in README
 - make every user follow principle of least privilege
@@ -191,7 +189,7 @@ MARIADB
 - **Shows network connection:** try to ping from wordpress using `docker exec -it wordpress mysqladmin -h mariadb -u $MYSQL_USER -p$MYSQL_PASSWORD ping`
 - **Show persistence:** update wordpress page theme, then `make down` and `make` again
 - **Show mounts:** `docker inspect mariadb | grep -A 10 Mounts`
-- config (quite straight forward, located in /etc/mysql)
+- config (quite straight forward, located in `/etc/mysql`)
 - init script ()
 - what daemon used (mariadbd, comes from the mariadb-server package from apt repository, mysqladmin = utility tool, mariadb = client CLI, mariadbd = db server engine)
 
@@ -201,17 +199,24 @@ WORDPRESS
 - Rename the `index.php` file, should get `403` or `404` error from nginx
 - explain FastCGI:
   - *"NGINX is a web server, but it doesn't speak PHP. With NGINX as a Reverse Proxy, when a .php request comes in, NGINX wraps it in the FastCGI protocol and sends it to the WordPress container on port 9000. PHP-FPM (FastCGI Process Manager) then executes the code and sends the HTML back."*
-- config (located in /etc/php/${PHP_VERSION}/fpm/pool.d/z-custom-www.conf)
+- config (located in `/etc/php/${PHP_VERSION}/fpm/pool.d/z-custom-www.conf`)
 - init script (download source code for wordpress, configure link to mariadb, init databases with an admin account and with wordpress stuff, create normal user and give access permissions)
 - what daemon or CLI used (its daemon is mainly php-fpm, wordpress is just a bunch of .php files and php-fpm executes them)
 
 NGINX
 - proxy means to handle for you, forward proxy is like a vpn, protects the client, while reverse proxy protects the server, intercepts incoming requests before they reach the server.
+- **Why are self signed certs needed:** to ensure environmental parity (dev, staging, prod are all same, able to test secure features)
+- **Why strictly TLS 1.2v and above:** BEAST, POODLE, Sweet32 attacks happened
+- **Why inject the ssl cert and key instead of creating it in nginx dockerfile:** private key is permanently stored in image history, seperation of concerns (person who handle certs is different from person who maintains nginx dockerfile, made nginx stateless)
+- **Verify Encryption of HTTP vs HTTPS**:
+    - `sudo tcpdump -i any port 80 -A` , `curl http://cwoon.42.my`
+    - `sudo tcpdump -i any port 443 -X` , `curl -k https://cwoon.42.my`
 - **Verify SSL cert:** `openssl s_client -connect localhost:443 -tls1_3`
-- explain why its sharing volumes with Wordpress
+- **Why NGINX shares volumes with Wordpress**
   - *"Both NGINX and WordPress share the /var/www/html volume. This is critical because NGINX needs to serve static assets (CSS/Images) directly from the disk for speed, while the WordPress container needs the same files to execute the PHP logic. Without the shared volume, you'd get a functional site with no styling (broken CSS)."*
-- config
-- what daemon or CLI used
+- **Why is PID 1 master process running as root:** Ports under 1024 in Linux need `root` privileges to claim, helps to spawn the worker processes, and /run/secrets/ssl_key (private) should only be accessed by root
+- config (located in `/etc/nginx/http.d/z-custom-nginx.conf`)
+- what daemon or CLI used (`nginx -g daemon off` - `-g` injects the `daemon off` config that isnt in `nginx.conf`, tells nginx to not close the original process after spawning workers or else docker will think PID 1 is done and shut everything down, )
 
 ADMINER
 - installation

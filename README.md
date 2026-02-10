@@ -1,7 +1,7 @@
 *This project has been created as part of the 42 curriculum by cwoon*
 
 # Description
-This project is a System Administration exercise designed to broaden the knowledge on virtualization using Docker. The goal is to setup a small and secure infrastructure of services (NGINX, MariaDB, Wordpress) running in dedicated containers. The services must be built from scratch using custom Dockerfiles to ensure a deep understanding of container orchestration, networking, and volume management.
+This project is a System Administration exercise designed to broaden the knowledge on virtualization using Docker. The goal is to setup a small and secure infrastructure of services according to a LEMP stack (Linux, Nginx, MariaDB or MySQL, PHP Wordpress) running in dedicated containers. The services must be built from scratch using custom Dockerfiles to ensure a deep understanding of container orchestration, networking, and volume management.
 
 # Instructions *(refer to DEV_DOC.md for more details)*
 ## 1. Prerequisites (based on how this project was created)
@@ -97,4 +97,7 @@ This project is a System Administration exercise designed to broaden the knowled
 - **Docker Network**: Creates an isolated bridge where containers communicate via service names (e.g., `wordpress:9000`). This is mandatory for this project. Typically named as `docker0` on linux environments.
 - **Host Network**: Bypasses isolation and uses the host's IP directly. All containers will be sharing the network namespace. This is strictly **forbidden** as it breaks the containerization principle.
 
-## BONUSES
+## BONUS SERVICES
+**Performance:** Redis (Object Caching).
+**Observability:** Uptime Kuma (Heartbeat) and cAdvisor (Resource Metrics).
+**Management:** Adminer (DB GUI) and FTP (File Transfer).
