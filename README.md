@@ -72,6 +72,10 @@ This project is a System Administration exercise designed to broaden the knowled
 
 - **Security**: NGINX is the sole entry point (Port 443), utilizing self-signed certificates to simulate a production environment without external DNS dependencies.
 
+- **Injecting SSL as Secrets:** By mounting SSL certs as Docker secrets during runtime, this ensures that private keys are not baked in the docker image that can be seen by the public. It also allows the image to be stateless.
+
+- **Modular NGINX Configuration:** Seperation of concerns prevents a single point of failure. Syntax errors in one config file could bring down an entire stack. So utilizing subdomains allows for service specific rules.
+
 ## Virtual Machines vs Docker
 | Feature | Virtual Machine          | Docker (Containers) |
 | ------- | ------------------------ | ------------------- |
@@ -98,6 +102,6 @@ This project is a System Administration exercise designed to broaden the knowled
 - **Host Network**: Bypasses isolation and uses the host's IP directly. All containers will be sharing the network namespace. This is strictly **forbidden** as it breaks the containerization principle.
 
 ## BONUS SERVICES
-**Performance:** Redis (Object Caching).
-**Observability:** Uptime Kuma (Heartbeat) and cAdvisor (Resource Metrics).
-**Management:** Adminer (DB GUI) and FTP (File Transfer).
+- **Performance:** Redis (Object Caching).
+- **Management:** Adminer (DB GUI) and FTP (File Transfer).
+- **Observability:** Uptime Kuma (Heartbeat) and cAdvisor (Resource Metrics).

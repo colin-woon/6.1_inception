@@ -31,11 +31,14 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     curl ca-certificates gnupg && \
     curl -fsSL https://deb.nodesource.com/setup_24.x | bash - && \
     apt-get install -y nodejs && \
+	useradd -m -d /app kuma && \
     apt-get clean && rm -rf /var/lib/apt/lists/*
 
 WORKDIR /app
 
-COPY --from=builder /app /app
+COPY --from=builder --chown=kuma:kuma /app /app
+
+USER kuma
 
 EXPOSE 3001
 VOLUME /app/data
