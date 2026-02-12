@@ -242,9 +242,19 @@ REDIS (Remote Dictionary Server)
 - **If redis crashes, will website crash?** No it will just fallback to mariadb container (but the fallback needs to be setup somewhere)
 
 FTP
-- installation
+- 1 connection to talk, another connection to do data transfer
+- installation (`vsftpd` (Very Secure FTP Daemon))
 - config
+  - `/var/run/vsftpd/empty` - needs an empty directory for `chroot` to isolate the FTP **parent** process, hacker will get stuck in here, it can only do 555 permissions (Read + Execute, no write), basically using it as a **Current Working Directory** to execute shell binary commands, because **child** process that is stuck in `/var/www/html` techncially cannot access those binaries
+  - port `21` - command channel, for login and command execution as root, user logins will be handled by spawned child processes, which will have lower privileges, non-root
+  - port `21100-21110` - (passive mode) data channel, using a range of these 10 ports to actually transfer the files
+  - UID `33` - `www-data` by linux is typically id 33, can check with `id www-data`, need to ensure the UID is the same so uploaded files from ftp can be accessed by wordpress and nginx
 - importance?
+  - for inception: its to test **permission management**, as `/var/www/html` is being shared by *wordpress, nginx, and ftp*
+  - real word: in traditional web hosting environment, the developer does not has SSH access to the web server cause its risky, but they will have a FTP account to upload new files for their website
+- **How to use:**
+  - look up private network ip address, then add vm ip `sudo ip addr add 192.168.100.102/24 dev enp0s8`
+  - then can straight connect to that ip address with `ftp 192.168.100.102`
 
 CADVISOR
 - importance (to monitor resource usage for each container, spotting any performance bottlenecks)
